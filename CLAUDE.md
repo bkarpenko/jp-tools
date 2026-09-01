@@ -208,4 +208,5 @@ python freq.py --check         проверка целостности данн�
 | [README.md](README.md) | что это, запуск, что показывает |
 | [docs/data.md](docs/data.md) | таблицы в `data/`: колонки, происхождение, ограничения |
 | [docs/scale.md](docs/scale.md) | чем обоснованы пороги вердикта |
+| [docs/workflow.md](docs/workflow.md) | схема работы: сессия, запись в репозиторий, обновление скилла |
 | [skill/SKILL.md](skill/SKILL.md) | инструкция скилла: как им пользоваться в чужом чате |
