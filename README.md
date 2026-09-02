@@ -54,7 +54,8 @@ python tools/freq/freq.py --check         проверка целостност�
 нужен для остальных случаев.
 
 ```
-python build_skill.py          все скиллы в dist/, данные .gz (jp-freq ~23 МБ)
+python build_skill.py          все скиллы в dist/, данные .gz (jp-freq ~23 МБ,
+                               jukugo ~0,5 МБ, outlier-tree-links ~24 КБ)
 python build_skill.py freq     только один инструмент
 python build_skill.py --xz     то же с данными .xz (~17 МБ, распаковка медленнее)
 ```
@@ -150,12 +151,12 @@ tools/outlier-tree-links/  связки значений дерева Outlier: �
   references/            подгружается по необходимости
   examples/              эталоны: на них проверяется, что правка не испортила качество
 tools/jukugo/            композициональность компаундов: метод + справочный аппарат
-  README.md              раскладка и состояние
+  SKILL.md               процедура разбора целиком
+  skill.json             манифест сборки
   references/            нужно во время разбора
-  examples/              десять разборов
+  examples/              одиннадцать разборов + README со статусами
   docs/                  нужно при правке метода; в пакет не едет
   sources/               исходные страницы источника
-                         (SKILL.md ещё нет — скилл пока не собирается)
 docs/workflow.md         схема работы: сессия, запись в репозиторий, обновление скилла
 ```
 
