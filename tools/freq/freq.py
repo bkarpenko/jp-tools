@@ -9,7 +9,8 @@ jp-freq — частотная справка по японскому кандз
     python freq.py --check         проверка целостности данных
 
 Зависимостей нет: только стандартная библиотека.
-Данные лежат в data/, устройство — в docs/data.md, шкалы — в docs/scale.md.
+Таблицы и знаменатели — в shared/corpus.py, устройство таблиц —
+в shared/docs/data.md, шкалы вердикта — в docs/scale.md рядом с этим файлом.
 
 Устройство модуля: сбор данных (collect_*) отделён от вывода (render_text_*,
 render_html). Оба режима читают один и тот же словарь, поэтому расходиться
@@ -18,7 +19,6 @@ render_html). Оба режима читают один и тот же слов�
 
 from __future__ import annotations
 
-import gzip
 import html as _h
 import os
 import re
@@ -27,15 +27,15 @@ import unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Где искать таблицы. Порядок важен: сначала то, что положено осознанно,
-# потом типовые места, куда файлы кладёт заливка в песочницу.
-SEARCH_DIRS = [d for d in (
-    os.environ.get("JP_FREQ_DATA"),
-    os.path.join(HERE, "data"), HERE,
-    os.path.join(os.getcwd(), "data"), os.getcwd(),
-    "/mnt/user-data/uploads", "/mnt/session/uploads", "/mnt/data",
-    os.path.expanduser("~"),
-) if d and os.path.isdir(d)]
+# corpus.py — общий слой: где лежат таблицы, как читаются, чем нормируются.
+# В репозитории он в shared/, в собранном скилле — рядом с этим файлом.
+# Ищем в обоих местах: пакет обязан работать там, где репозитория нет.
+for _d in (HERE, os.path.join(HERE, os.pardir, os.pardir, "shared")):
+    if os.path.isfile(os.path.join(_d, "corpus.py")):
+        sys.path.insert(0, os.path.abspath(_d))
+        break
+from corpus import (KANJI_CHARS, KANJI_TOKENS, KANJI_TOTAL, LUW_TOKENS,
+                    LUW2_TOTAL, SUW_TOTAL, check, rows, where)
 
 # ------------------------------------------------------------------ шкалы
 # Пороги вердикта заданы кумулятивным покрытием корпуса, а не на глаз (docs/scale.md).
@@ -69,18 +69,6 @@ WORD_TAIL = ("НА ГРАНИ", "реже раза на 10 миллионов с
 # Концы шкалы слова в pmw. Домен ровно пять декад, поэтому границы полос
 # (100, 10, 1, 0,1) ложатся на 20, 40, 60 и 80 % ширины сами собой.
 WORD_SCALE_HI, WORD_SCALE_LO = 1000.0, 0.01
-
-KANJI_TOTAL = 6940          # знаков в таблице знаков BCCWJ
-LUW2_TOTAL = 841976         # типов в luw2 (слов с частотой 1 в нём нет)
-SUW_TOTAL = 185136          # типов в suw
-KANJI_TOKENS = 59255969     # всего вхождений кандзи в корпусе (знаменатель кум%)
-KANJI_CHARS = 195322813     # всего символов в корпусе (знаменатель pmw в kanji.tsv)
-LUW_TOKENS = 83308386       # всего токенов LUW (знаменатель pmw в luw2)
-# Знаменателей три, и они разные. pmw в kanji.tsv считается от ВСЕХ символов
-# корпуса, а не от кандзи: 1918 / 9,8196 * 1e6 = 195 322 813, и то же число
-# выходит для 人, 一, 日, 閲. Кандзи среди этих символов только 30,3 %.
-# Сумма freq в luw2.tsv.gz (81 715 641) — это корпус БЕЗ 1 592 745 хапаксов,
-# поэтому доли покрытия считаются от LUW_TOKENS, иначе они завышены на 1,4 п.п.
 
 # Коды жанровых подкорпусов BCCWJ. Без расшифровки строка «OB,LB,PB» не значит
 # ничего, а значит она немало: у неё видно, в какой прозе слово живёт.
@@ -189,36 +177,6 @@ def is_kata(ch: str) -> bool:
 # из-за одного U+30FC. Поэтому при выборе азбуки они не голосуют.
 NEUTRAL = set("\u30fc\u301c\uff5e\u30fb\u309d\u309e\u30fd\u30fe"
               "\u309b\u309c\u3099\u309a\u3005")
-
-
-def where(name: str) -> str:
-    """Находит таблицу. Заливка в песочницу может разложить файлы плоско
-    или в служебный каталог загрузок, поэтому путь не один."""
-    for d in SEARCH_DIRS:
-        for ext in (".tsv", ".tsv.gz", ".tsv.xz"):
-            p = os.path.join(d, name + ext)
-            if os.path.exists(p):
-                return p
-    sys.exit(f"не нашёл таблицу {name}.tsv[.gz|.xz]. Искал в:\n  "
-             + "\n  ".join(SEARCH_DIRS)
-             + "\nПоложи файлы data/ рядом с freq.py или задай JP_FREQ_DATA.")
-
-
-def rows(name: str):
-    path = where(name)
-    # .xz — запасной формат для сборки скилла: те же данные на четверть легче,
-    # но распаковка медленнее, поэтому в репозитории лежит .gz
-    if path.endswith(".xz"):
-        import lzma
-        f = lzma.open(path, "rt", encoding="utf-8")
-    elif path.endswith(".gz"):
-        f = gzip.open(path, "rt", encoding="utf-8")
-    else:
-        f = open(path, encoding="utf-8")
-    with f:
-        f.readline()
-        for line in f:
-            yield line.rstrip("\n").split("\t")
 
 
 def width(s: str) -> int:
@@ -1609,31 +1567,6 @@ def html_word(d: dict) -> str:
 
     parts.append(glossary(TERMS_WORD + TERMS_COMMON))
     return page(d["word"] + " — частотность BCCWJ", "\n".join(parts))
-
-
-# ------------------------------------------------------- проверка данных
-# Таблицы выведены из корпуса и в сессии не правятся. Тихий дрейф данных
-# ничем себя не выдаёт — вердикт останется правдоподобным, — поэтому число
-# строк сверяется с зашитыми константами. Расхождение = данные не те.
-CHECKS = [("kanji", KANJI_TOTAL), ("luw2", LUW2_TOTAL), ("suw", SUW_TOTAL)]
-
-
-def check() -> int:
-    bad = 0
-    for name, expected in CHECKS:
-        got = sum(1 for _ in rows(name))
-        ok = got == expected
-        bad += not ok
-        print(f"  {name:<8} {got:>7} строк, ожидалось {expected:>7}   "
-              f"{'ок' if ok else 'РАСХОЖДЕНИЕ'}")
-        print(f"  {'':8} {where(name)}")
-    got = sum(1 for _ in rows("writing"))
-    print(f"  {'writing':<8} {got:>7} строк, точное число не фиксируется")
-    print(f"  {'':8} {where('writing')}")
-    print("\nданные в порядке" if not bad else
-          f"\nСБОЙ: не сошлось таблиц — {bad}. Пересобери базу через build_data.py "
-          "на исходном корпусе и залей заново.")
-    return bad
 
 
 # ------------------------------------------------------------------ вход

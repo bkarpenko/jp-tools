@@ -1,6 +1,6 @@
 # Данные
 
-Четыре таблицы в `data/`, выведенные из корпуса BCCWJ скриптом `build_data.py`.
+Четыре таблицы в `shared/data/`, выведенные из корпуса BCCWJ скриптом `build_data.py`.
 Суммарно ~21 МБ вместо 1,4 ГБ исходников. Читаются как `.tsv` или `.tsv.gz` —
 `freq.py` берёт то, что найдёт.
 
@@ -189,7 +189,7 @@ OC Yahoo!Chiebukuro, OY Yahoo!Blog, OV стихи, OL законы, OM стен�
 ```
 python build_data.py            # в data/, со сжатием
 python build_data.py --plain    # без сжатия
-python freq.py --check          # обязательно после
+python corpus.py                # обязательно после
 ```
 
 Пути к исходникам заданы в шапке `build_data.py`. Таблицы знаков и написаний BCCWJ

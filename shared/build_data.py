@@ -111,7 +111,7 @@ def build_kanji(src: str, name: str):
             o.write(f"{i}\t{ch}\t{fr}\t{pmw:.4f}\t{100*cum/total:.3f}\t{forms}\n")
     print(f"{path}: {len(rows)} кандзи, {total} вхождений, "
           f"{os.path.getsize(path)/1e6:.2f} МБ")
-    print(f"  -> KANJI_TOTAL = {len(rows)}, KANJI_TOKENS = {total} в freq.py")
+    print(f"  -> KANJI_TOTAL = {len(rows)}, KANJI_TOKENS = {total} в corpus.py")
 
 
 def build_writing(src: str, name: str):
@@ -151,4 +151,4 @@ if __name__ == "__main__":
     for w in want:
         fn, d, src = BUILDERS[w]
         fn(os.path.join(d, src), w)
-    print("\nПосле пересборки обязательно: python freq.py --check")
+    print("\nПосле пересборки обязательно: python corpus.py")
