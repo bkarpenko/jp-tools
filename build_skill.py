@@ -119,6 +119,12 @@ def add(z: zipfile.ZipFile, src: str, arc: str, seen: dict) -> int:
     return os.path.getsize(src)
 
 
+def size_str(n: int) -> str:
+    """Пакеты различаются на три порядка: 23 МБ у частотки, 40 КБ у промптового
+    инструмента. Одна шкала на оба даёт «0.0 МБ», что читается как «пусто»."""
+    return f"{n/1e6:>6.1f} МБ" if n >= 1e5 else f"{n/1e3:>6.1f} КБ"
+
+
 def build(tool_dir: str, m: dict, as_xz: bool) -> str:
     name = m["name"]
     src_dir = os.path.join(TOOLS, tool_dir)
@@ -172,8 +178,8 @@ def build(tool_dir: str, m: dict, as_xz: bool) -> str:
             total += len(blob)
 
     size = os.path.getsize(out)
-    print(f"  {name:<20} {len(seen):>3} файлов, содержимое {total/1e6:>6.1f} МБ, "
-          f"архив {size/1e6:>6.1f} МБ")
+    print(f"  {name:<20} {len(seen):>3} файлов, содержимое {size_str(total)}, "
+          f"архив {size_str(size)}")
     return out
 
 
