@@ -1,0 +1,6 @@
+{
+  "name": "jp-freq",
+  "files": ["freq.py"],
+  "shared": ["corpus.py"],
+  "data": ["kanji", "suw", "luw2", "writing"]
+}
