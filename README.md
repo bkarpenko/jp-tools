@@ -17,8 +17,8 @@
 для работы, доливать ничего не нужно.
 
 ```
-git clone https://github.com/bkarpenko/jp-freq
-cd jp-freq
+git clone https://github.com/bkarpenko/jp-tools
+cd jp-tools
 ```
 
 ## Быстрый старт
