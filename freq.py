@@ -446,9 +446,15 @@ def collect_word(word: str) -> dict:
     scale_rows, cum_at, same, run = {}, {}, [], 0
     pend = list(marks)
     prev = grab_next = None
+    # Ранг в luw2 делится: одинаковая частота — одинаковый ранг (на 4663-м
+    # стоят шесть слов). Считаем, сколько слов делит ранг искомого, чтобы
+    # таблица шкалы не выдавала три строки с одним числом молча.
+    tied = 0
     for i, s in enumerate(rows("luw2"), 1):
         run += int(s[5])
         r = int(s[0])
+        if r == r0:
+            tied += 1
         while pend and r >= pend[0]:
             pend.pop(0)
             if i not in scale_rows:
@@ -470,7 +476,9 @@ def collect_word(word: str) -> dict:
         scale_rows[prev[0]], cum_at[prev[0]] = prev[1], prev[2]
     scale = [{"rank": int(scale_rows[i][0]), "word": scale_rows[i][2],
               "pmw": float(scale_rows[i][6]),
-              "cum": 100.0 * cum_at[i] / LUW_TOKENS, "target": scale_rows[i][2] == word}
+              "cum": 100.0 * cum_at[i] / LUW_TOKENS, "target": scale_rows[i][2] == word,
+              "tie": r0 is not None and int(scale_rows[i][0]) == r0
+                     and scale_rows[i][2] != word}
              for i in sorted(scale_rows)]
 
     pmw_l = sum(float(s[6]) for s in luw)
@@ -510,8 +518,9 @@ def collect_word(word: str) -> dict:
         "luw2_total": LUW2_TOTAL, "suw_total": SUW_TOTAL,
         "ratio": (freq_s / freq_l) if (suw and luw) else None,
         "scale": scale,
+        "tied": tied,
         "inner": [{"word": s[2], "pmw": float(s[6]), "freq": int(s[5])} for s in inner],
-        "inner_mass": inner_mass,
+        "inner_mass": inner_mass, "inner_freq": sum(int(s[5]) for s in inner),
         "writing": writing, "wr": wr,
         "kana": wr["хирагана"] + wr["катакана"], "kanji": wr["кандзи"],
         "other": wr["прочее"],
@@ -630,9 +639,13 @@ def render_text_word(d: dict):
     if d["scale"]:
         head("ШКАЛА LUW2: ЧТО СТОИТ НА СОСЕДНИХ И ОПОРНЫХ РАНГАХ")
         for s in d["scale"]:
-            print(f'  ранг {s["rank"]:>6}  {pad(s["word"], 16)} {num(s["pmw"]):>10} pmw'
-                  f'   кумулятивно {num(s["cum"], 1):>5} %'
+            print(f'  ранг {s["rank"]:>6}{"=" if s["tie"] else " "} {pad(s["word"], 16)} '
+                  f'{num(s["pmw"]):>10} pmw   кумулятивно {num(s["cum"], 1):>5} %'
                   + ("   <<< искомое" if s["target"] else ""))
+        if d["tied"] > 1:
+            print(f'  ранг {d["rank"]} делят {d["tied"]} '
+                  + plural(d["tied"], "слово", "слова", "слов")
+                  + " с одинаковой частотой (помечены «=»)")
 
     head("ВХОДИТ В СОСТАВ ДРУГИХ ЕДИНИЦ LUW2")
     if d["inner"]:
@@ -640,7 +653,8 @@ def render_text_word(d: dict):
             print(f'  {pad(s["word"], 18)} {num(s["pmw"]):>9} pmw   freq {s["freq"]}')
         if len(d["inner"]) > 12:
             print(f'  … и ещё {len(d["inner"]) - 12}')
-        print(f'  всего {len(d["inner"])} единиц, суммарно {num(d["inner_mass"])} pmw')
+        print(f'  всего {len(d["inner"])} единиц, суммарно {num(d["inner_mass"])} pmw, '
+              f'freq {d["inner_freq"]}')
         if d["pmw"]:
             m = d["inner_mass"]
             print(f'  само слово {num(d["pmw"])} pmw против {num(m)} pmw в составных: '
@@ -866,6 +880,7 @@ th{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--i
 td.r,th.r{text-align:right; white-space:nowrap}
 tr.hi td{background:var(--accent-soft); font-weight:600}
 .scroll{overflow-x:auto}
+td .tie{color:var(--ink3); font-weight:400; margin-left:2px}
 
 details{border-top:1px solid var(--line); padding-top:10px}
 summary{cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:600; list-style:none}
@@ -1256,12 +1271,13 @@ def html_word(d: dict) -> str:
     tot = sum(d["wr"].values())
     lead2 = ""
     if tot:
-        lead2 = (('Знаком набрано <b>' + num(100 * d["kanji"] / tot, 1)
-                  + ' %</b> вхождений. ' if d["kanji"] else "")
-                 + script_note(d).capitalize() + ".")
+        # script_note сам начинается с «знаком набрано N %» — отдельная
+        # фраза перед ним дублировала это число слово в слово.
+        lead2 = script_note(d).capitalize() + "."
     # Расшифровка рядом с ярлыком говорит про само слово, а не про полосу:
     # границы полос ушли засечками на шкалу, дублировать их в шапке незачем.
-    gloss = "Встречается " + once_in(d["pmw"], "слов")
+    gloss = (('Ранг ' + num(d["rank"], 0) + ' · ') if d["rank"] else "") \
+        + num(d["pmw"]) + " pmw"
     lead1 = ""
     if d["rank"]:
         lead1 = ('Чаще него — ' + num(d["rank"] - 1, 0) + ' '
@@ -1301,11 +1317,23 @@ def html_word(d: dict) -> str:
 
     segs = [(20.0, WORD_SHORT[i], "b%d" % i) for i in range(5)]
     tr = "".join('<tr class="' + ("hi" if a["target"] else "") + '">'
-                 '<td class="r">' + num(a["rank"], 0) + '</td><td class="jp">'
+                 '<td class="r">' + num(a["rank"], 0)
+                 + ('<span class="tie">=</span>' if a["tie"] else "")
+                 + '</td><td class="jp">'
                  + esc(a["word"]) + '</td><td class="r">' + num(a["pmw"])
                  + '</td><td class="r">' + once_in(a["pmw"], "слов")
                  + '</td><td class="r">' + num(a["cum"], 1) + ' %</td></tr>'
                  for a in d["scale"])
+    # Ранги в luw2 повторяются: одинаковая частота — один ранг. Соседи берутся
+    # по факту, строкой выше и строкой ниже, поэтому в колонке рангов может
+    # трижды стоять одно число. Молча это выглядит как ошибка — помечаем.
+    tie_note = ""
+    if d["tied"] > 1:
+        tie_note = ('<p class="note">Ранг ' + num(d["rank"], 0) + ' делят '
+                    + num(d["tied"], 0) + ' '
+                    + plural(d["tied"], "слово", "слова", "слов")
+                    + ' с одинаковой частотой; «=» в таблице помечает такие '
+                    'строки. Порядок внутри одного ранга ничего не значит.</p>')
     parts.append('<section class="card"><h2>Место на шкале частот</h2>'
                  + strip(segs, word_pos(d["pmw"]), d["word"],
                          "раз на " + per_words(WORD_SCALE_HI) + " слов",
@@ -1314,7 +1342,7 @@ def html_word(d: dict) -> str:
                  + '<div class="scroll"><table><tr><th class="r">ранг</th><th>слово</th>'
                  '<th class="r">pmw</th><th class="r">как часто</th>'
                  '<th class="r">кумулятивно</th></tr>' + tr
-                 + '</table></div></section>')
+                 + '</table></div>' + tie_note + '</section>')
 
     if tot:
         rowsw = []
@@ -1371,10 +1399,74 @@ def html_word(d: dict) -> str:
             said = ('Самостоятельным словом идёт лишь ' + num(100 / d["ratio"], 0)
                     + ' % вхождений: остальное — внутри более длинных слов. Это скорее '
                       'морфема, и учить её осмысленно в составе, а не отдельно.')
+        # Числа берутся из двух разных таблиц, и это надо называть: 12 511 —
+        # частота короткой единицы (suw), 3 578 — частота слова целиком (luw2).
+        # Сравниваются абсолютные частоты: pmw у двух баз считаются от разных
+        # знаменателей токенов и напрямую несравнимы.
         parts.append('<section class="card"><h2>Слово или морфема</h2>'
-                     '<p class="note">Из <b>' + num(d["freq_s"], 0)
-                     + '</b> появлений этой единицы в корпусе <b>' + num(d["freq_l"], 0)
-                     + '</b> — она сама. ' + said + '</p></section>')
+                     '<p class="note">Короткой единицей (SUW) слово встречается <b>'
+                     + num(d["freq_s"], 0) + '</b> раз, самостоятельным словом (LUW2) — '
+                     '<b>' + num(d["freq_l"], 0) + '</b>. ' + said + '</p></section>')
+
+    # Составные идут сразу под «Словом или морфемой»: там сказано, что 71 %
+    # вхождений уходит внутрь других единиц, а здесь видно, внутрь каких
+    # именно. Само слово стоит в том же списке — иначе массу составных
+    # не с чем сравнить; знаменатель у всех строк один, pmw LUW2.
+    if d["inner"]:
+        me = {"word": d["word"], "pmw": d["pmw"], "freq": d["freq_l"], "self": True}
+        items = sorted(d["inner"] + [me], key=lambda s: -s["pmw"])
+        mxi = max(s["pmw"] for s in items) or 1.0
+
+        def irow(s):
+            return (s["word"], s["pmw"] / mxi * 100,
+                    num(s["pmw"]) + " pmw  \u00b7  freq " + num(s["freq"], 0),
+                    bool(s.get("self")))
+
+        si = next(i for i, s in enumerate(items) if s.get("self"))
+        top, tail_i = items[:10], items[10:]
+        if si >= 10:
+            # строка самого слова нужна на виду всегда: она — точка отсчёта
+            top = top + [items[si]]
+            tail_i = [s for i, s in enumerate(items) if i >= 10 and i != si]
+
+        m = d["inner_mass"]
+        share = 100 * m / (m + d["pmw"]) if d["pmw"] else 100.0
+        rest = ""
+        if tail_i:
+            rest = ('<details><summary>показать все ' + str(len(d["inner"])) + ' '
+                    + plural(len(d["inner"]), "составную единицу",
+                             "составные единицы", "составных единиц") + '</summary>'
+                    + bar_rows([irow(s) for s in tail_i], hi=d["word"])
+                    + '</details>')
+        recon = ""
+        inside_f = d["freq_s"] - d["freq_l"] if d["ratio"] else 0
+        if inside_f > 0:
+            gap = inside_f - d["inner_freq"]
+            if not gap:
+                recon = ('<p class="note">Внутрь составных уходит '
+                         + num(inside_f, 0) + ' вхождений — ровно столько же '
+                         'набирают единицы в списке.</p>')
+            else:
+                recon = ('<p class="note">Внутрь составных уходит <b>'
+                         + num(inside_f, 0) + '</b> вхождений по разметке SUW, '
+                         'а единицы списка набирают <b>' + num(d["inner_freq"], 0)
+                         + '</b>: разошлось ' + num(abs(gap), 0) + ' ('
+                         + num(100.0 * abs(gap) / inside_f, 1) + ' %). Сходиться '
+                         'точно они и не должны: в luw2 нет единиц с частотой 1, '
+                         'а SUW и LUW2 режут текст по-разному.</p>')
+        parts.append('<section class="card"><h2>Входит в состав других единиц LUW2</h2>'
+                     + bar_rows([irow(s) for s in top], hi=d["word"])
+                     + '<p class="note">Само слово стоит в списке для сравнения: '
+                     '<b class="jp">' + esc(d["word"]) + '</b> отдельным словом '
+                     'весит ' + num(d["pmw"]) + ' pmw, а ' + str(len(d["inner"])) + ' '
+                     + plural(len(d["inner"]), "составная единица", "составные единицы",
+                              "составных единиц") + ' — ' + num(m)
+                     + ' pmw вместе. На составные приходится <b>' + num(share, 1)
+                     + ' %</b> совокупной массы.</p>' + recon + rest + '</section>')
+    else:
+        parts.append('<section class="card"><h2>Входит в состав других единиц LUW2</h2>'
+                     '<p class="note">Ни в одну составную единицу не входит — здесь '
+                     'ищется только вхождение леммы целиком.</p></section>')
 
     # ---- жанры. Разметочные таблицы LUW2/SUW убраны: их числа уже есть
     # в метриках и в разделе «Слово или морфема». Осталось то, чего больше
@@ -1414,31 +1506,6 @@ def html_word(d: dict) -> str:
                      'плотность слова по корпусу (' + num(base, 1) + ' pmw). Столбик '
                      'правее риски значит, что в этом жанре слово идёт гуще обычного, '
                      'левее — реже; «×» показывает во сколько раз.</p></section>')
-
-    if d["inner"]:
-        mxi = max(s["pmw"] for s in d["inner"])
-
-        def irow(s):
-            return (s["word"], s["pmw"] / mxi * 100,
-                    num(s["pmw"]) + " pmw  ·  freq " + num(s["freq"], 0), False)
-
-        m = d["inner_mass"]
-        share = 100 * m / (m + d["pmw"]) if d["pmw"] else 100.0
-        rest = ""
-        if len(d["inner"]) > 10:
-            rest = ('<details><summary>показать все ' + str(len(d["inner"]))
-                    + ' единиц</summary>' + bar_rows([irow(s) for s in d["inner"][10:]])
-                    + '</details>')
-        parts.append('<section class="card"><h2>Входит в состав других единиц LUW2</h2>'
-                     + bar_rows([irow(s) for s in d["inner"][:10]])
-                     + '<p class="note">Всего ' + str(len(d["inner"])) + ' '
-                     + plural(len(d["inner"]), "единица", "единицы", "единиц") + ' на '
-                     + num(m) + ' pmw. На составные приходится <b>' + num(share, 1)
-                     + ' %</b> совокупной массы.</p>' + rest + '</section>')
-    else:
-        parts.append('<section class="card"><h2>Входит в состав других единиц LUW2</h2>'
-                     '<p class="note">Ни в одну составную единицу не входит — здесь '
-                     'ищется только вхождение леммы целиком.</p></section>')
 
     if d["same"]:
         tr = "".join('<tr><td class="jp">' + esc(s["reading"]) + '</td><td class="jp">'
