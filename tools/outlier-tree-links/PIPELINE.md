@@ -1,8 +1,3 @@
----
-name: outlier-tree-links
-description: Explains semantic links between meaning-tree nodes of a Chinese character (漢字), usually from an Outlier Linguistics card — why meaning A gave rise to meaning B, at which node a semantic component stops motivating the tree, and which branches Outlier omits. Use whenever the user asks about connections or transitions between character meanings, pastes an Outlier "Character meanings" tree or screenshot, asks what a component like 氵 or 扌 "hints at", asks why an original meaning became the modern one, or asks to check a tree against 漢語大詞典. Trigger on phrasings like "объясни связь между значениями", "объясни переход", "как связаны значения", "почему из A получилось B", "что делает компонент", "дай связку значений", "explain the link between these meanings". Trigger even when the question looks short — a one-line question about a meaning transition is exactly what this skill is for. Do NOT use for a full six-section character breakdown; that is a different task.
----
-
 # Связки значений дерева Outlier
 
 Скилл отвечает на один вопрос: **почему родительское значение породило дочернее**. Ничего сверх этого.
