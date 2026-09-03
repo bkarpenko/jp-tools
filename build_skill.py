@@ -17,14 +17,27 @@
 
     {
       "name":   "jp-freq",                        имя скилла и корня в архиве
+      "doc":    "метод.md",                       исходный документ; по умолчанию
+                                                  SKILL.md. В архив он всегда
+                                                  ложится как SKILL.md
+      "description": "…",                         текст фронтматтера, если его
+                                                  нет в самом документе
       "files":  ["freq.py", "references/"],       из каталога инструмента;
                                                   имя с / — каталог целиком
       "shared": ["corpus.py"],                    из shared/, ложится в корень
       "data":   ["kanji", "suw", "luw2"]          из shared/data/, ложится в data/
     }
 
-SKILL.md берётся из корня каталога инструмента всегда и в манифесте не
-указывается: скилла без него не бывает.
+**Фронтматтер — принадлежность пакета, а не документа.** Формат скиллов Claude
+требует файла `SKILL.md` с полями `name` и `description` в шапке. Это правило
+упаковки, и документу в репозитории оно ни к чему: методология может уезжать
+в другую LLM или читаться прямо из репозитория, где клодовская шапка — мусор.
+
+Поэтому: инструмент держит документ под именем, говорящим о содержании
+(`doc` в манифесте), а сборщик при упаковке сам приписывает фронтматтер из
+`name` и `description` манифеста и кладёт результат как `SKILL.md`. Если
+документ уже несёт фронтматтер, он используется как есть, а имя в нём
+сверяется с манифестом — так собираются инструменты, не переехавшие на `doc`.
 
 Собранный пакет самодостаточен и в сеть не ходит: всё, что ему нужно, лежит
 рядом с SKILL.md. Установленная копия — артефакт сборки. Править её на месте
@@ -125,16 +138,30 @@ def size_str(n: int) -> str:
     return f"{n/1e6:>6.1f} МБ" if n >= 1e5 else f"{n/1e3:>6.1f} КБ"
 
 
+def frontmatter(m: dict) -> str:
+    """Шапка, которую требует формат скиллов Claude, из полей манифеста."""
+    desc = " ".join(str(m.get("description", "")).split())
+    if not desc:
+        die(f"манифест скилла «{m['name']}» без description: документ "
+            "фронтматтера не несёт, и взять его неоткуда")
+    return f"---\nname: {m['name']}\ndescription: {desc}\n---\n\n"
+
+
 def build(tool_dir: str, m: dict, as_xz: bool) -> str:
     name = m["name"]
     src_dir = os.path.join(TOOLS, tool_dir)
-    md = os.path.join(src_dir, "SKILL.md")
+    doc = m.get("doc", "SKILL.md")
+    md = os.path.join(src_dir, doc)
     if not os.path.isfile(md):
-        die(f"нет tools/{tool_dir}/SKILL.md")
+        die(f"нет tools/{tool_dir}/{doc}")
     declared = skill_name(md)
-    if declared and declared != name:
-        die(f"tools/{tool_dir}: во фронтматтере SKILL.md имя «{declared}», "
-            f"а в манифесте «{name}» — расходятся")
+    head = b""
+    if declared:
+        if declared != name:
+            die(f"tools/{tool_dir}: во фронтматтере {doc} имя «{declared}», "
+                f"а в манифесте «{name}» — расходятся")
+    else:
+        head = frontmatter(m).encode("utf-8")
 
     os.makedirs(DIST, exist_ok=True)
     out = os.path.join(DIST, name + "-skill.zip")
@@ -142,7 +169,13 @@ def build(tool_dir: str, m: dict, as_xz: bool) -> str:
 
     # без сжатия: и .gz, и .xz уже сжаты, второй проход только тратит время
     with zipfile.ZipFile(out, "w", zipfile.ZIP_STORED) as z:
-        total += add(z, md, name + "/SKILL.md", seen)
+        if head:
+            body = head + open(md, "rb").read()
+            z.writestr(name + "/SKILL.md", body)
+            seen[name + "/SKILL.md"] = md
+            total += len(body)
+        else:
+            total += add(z, md, name + "/SKILL.md", seen)
 
         for item in m.get("files", []):
             p = os.path.join(src_dir, item.rstrip("/"))
