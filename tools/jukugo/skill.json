@@ -1,4 +1,6 @@
 {
   "name": "jukugo",
-  "files": ["references/", "examples/"]
+  "files": ["goshu.py", "references/", "examples/"],
+  "shared": ["corpus.py"],
+  "data": ["suw", "luw2", "writing"]
 }
