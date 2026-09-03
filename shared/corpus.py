@@ -95,8 +95,17 @@ def rows(name: str):
 # строк сверяется с зашитыми константами. Расхождение = данные не те.
 CHECKS = [("kanji", KANJI_TOTAL), ("luw2", LUW2_TOTAL), ("suw", SUW_TOTAL)]
 
+# Производные таблицы: выведены из первичных скриптом build_derived.py, а не
+# из корпуса. Отличие практическое: их пересобирают где угодно, включая облачную
+# сессию, тогда как первичные — только там, где лежат 1,4 ГБ исходников.
+# Числа сверяются так же, и по той же причине: расхождение ничем себя не выдаёт.
+# Пересобрал первичные — пересобери производные, иначе они молча отстанут.
+COMPOUNDS_TOTAL = 204757    # двузнаковые леммы (для шага 1 jukugo)
+COMPFORMS_TOTAL = 55220     # написания, ведущие к двузнаковым леммам
+DERIVED = [("compounds", COMPOUNDS_TOTAL), ("compforms", COMPFORMS_TOTAL)]
 
-def check() -> int:
+
+def check(include_derived: bool = True) -> int:
     """Сверяет число строк с константами. Возвращает число разошедшихся таблиц."""
     bad = 0
     for name, expected in CHECKS:
@@ -109,6 +118,18 @@ def check() -> int:
     got = sum(1 for _ in rows("writing"))
     print(f"  {'writing':<8} {got:>7} строк, точное число не фиксируется")
     print(f"  {'':8} {where('writing')}")
+    if include_derived:
+        for name, expected in DERIVED:
+            try:
+                got = sum(1 for _ in rows(name))
+            except SystemExit:
+                print(f"  {name:<8} не найдена — собрать build_derived.py")
+                bad += 1
+                continue
+            ok = got == expected
+            bad += not ok
+            print(f"  {name:<8} {got:>7} строк, ожидалось {expected:>7}   "
+                  f"{'ок' if ok else 'РАСХОЖДЕНИЕ (пересобрать build_derived.py)'}")
     print("\nданные в порядке" if not bad else
           f"\nСБОЙ: не сошлось таблиц — {bad}. Пересобери базу через build_data.py "
           "на исходном корпусе и залей заново.")

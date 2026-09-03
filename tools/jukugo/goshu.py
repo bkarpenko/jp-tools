@@ -20,6 +20,11 @@ goshu — шаг 1 разбора компаунда: 語種 и развилка
 о происхождении слова. Место решается сравнением датировок двух словарей —
 шаг 3 в SKILL.md.
 
+Данные — производная таблица `compounds` (двузнаковые леммы) и `compforms`
+(написания, ведущие к ним). Не первичный корпус: шагу 1 нужны шесть полей
+по двузнаковым словам, а не 840 тысяч строк со всеми знаменателями. Собирается
+`shared/build_derived.py`, устройство — там же в шапке.
+
 Зависимость одна — shared/corpus.py, тот же слой доступа, что у частотки.
 """
 from __future__ import annotations
@@ -71,20 +76,29 @@ def pad(s: str, n: int) -> str:
     return s + " " * max(0, n - width(s))
 
 
-def lookup(table: str, word: str) -> list:
-    """Все леммы таблицы, равные запросу."""
-    return [{"rank": int(r[0]), "reading": r[1], "lemma": r[2], "pos": r[3],
-             "wtype": r[4], "freq": int(r[5]), "pmw": float(r[6])}
-            for r in rows(table) if r[2] == word]
+def lookup(word: str) -> dict:
+    """Все леммы с этой записью. Ключ — чтение и 語種: часть речи между длинными
+    и короткими единицами расходится (遭難: 一般 против サ変可能), и это разница
+    разбора, а не два разных слова."""
+    out = {}
+    for r in rows("compounds"):
+        if r[0] != word:
+            continue
+        rec = out.setdefault((r[1], r[2]), {"pos": r[3], "luw2": None, "suw": None})
+        if r[4]:
+            rec["luw2"] = float(r[4])
+        if r[5]:
+            rec["suw"] = float(r[5])
+        # Часть речи берём от коротких единиц, если она там есть: они ближе
+        # к слову, длинные единицы часто обобщают до 「一般」.
+        if r[5]:
+            rec["pos"] = r[3]
+    return out
 
 
 def by_writing(word: str) -> list:
     """Если запрос дан написанием, которого нет среди лемм: 刺身 -> 刺し身."""
-    hits = []
-    for s in rows("writing"):
-        forms = [p.rsplit("(", 1)[0].strip() for p in s[6].split(",")]
-        if word in forms:
-            hits.append((int(s[4]), s[1], s[0]))
+    hits = [(int(r[3]), r[1], r[2]) for r in rows("compforms") if r[0] == word]
     hits.sort(reverse=True)
     return hits
 
@@ -132,9 +146,26 @@ def branch(wtype: str, in_suw: bool, in_luw2: bool,
 
 
 def report(word: str) -> int:
-    luw2, suw = lookup("luw2", word), lookup("suw", word)
-    if not luw2 and not suw:
-        print(f"{word} — леммы с таким написанием в корпусе нет.\n")
+    n_kanji = sum(1 for ch in word if is_kanji(ch))
+    has_kana = any("ぁ" <= ch <= "ゖ" or "ァ" <= ch <= "ヺ" for ch in word)
+
+    # Ответ на трёх- и четырёхзнаковое считается по самому запросу: метод на них
+    # не проверен ни разу, и строка в таблице этого не изменила бы. Поэтому
+    # производная таблица их и не содержит — см. shared/build_derived.py.
+    if n_kanji != 2:
+        print(f"{word} — знаков: {n_kanji}.\n")
+        if n_kanji < 2:
+            print("СТОП: это не компаунд — сложению не из чего складываться.")
+        else:
+            print("СТОП: метод проверен только на двузнаковых. Разбор трёх-")
+            print("  и четырёхзнаковых деревом не пройден ни разу, ветки нет.")
+            print("  Решение об их устройстве записано, но не проверено:")
+            print("  tools/jukugo/docs/отложено/SCHEMA.md, «Компаунд — дерево».")
+        return 0
+
+    seen = lookup(word)
+    if not seen:
+        print(f"{word} — леммы с таким написанием в таблице двузнаковых нет.\n")
         hits = by_writing(word)
         if hits:
             print("Это написание принадлежит леммам:")
@@ -146,40 +177,24 @@ def report(word: str) -> int:
         return 1
 
     print(f"{word} — шаг 1: 語種 и развилка\n")
-    # Ключ группировки — только чтение и 語種. Часть речи между таблицами
-    # расходится (遭難: в luw2 「一般」, в suw 「サ変可能」) — это разница разбора
-    # длинных и коротких единиц, а не два разных слова.
-    seen = {}
-    for src, table in (("luw2", luw2), ("suw", suw)):
-        for r in table:
-            seen.setdefault((r["reading"], r["wtype"]), {})[src] = r
-
     wr = max([width("чтение")] + [width(k[0]) for k in seen]) + 2
     print("  " + pad("чтение", wr) + pad("語種", 8)
           + pad("часть речи", 40) + "luw2 pmw   suw pmw")
-    for (reading, wtype), src in seen.items():
+    for (reading, wtype), rec in seen.items():
         name = WTYPE.get(wtype, (wtype, ""))[0]
-        one = src.get("suw") or src.get("luw2")
-        pmw_l = f"{src['luw2']['pmw']:.4g}" if "luw2" in src else "—"
-        pmw_s = f"{src['suw']['pmw']:.4g}" if "suw" in src else "—"
+        pmw_l = f"{rec['luw2']:.4g}" if rec["luw2"] is not None else "—"
+        pmw_s = f"{rec['suw']:.4g}" if rec["suw"] is not None else "—"
         print("  " + pad(reading, wr) + pad(name, 8)
-              + pad(POS.get(one["pos"], one["pos"]), 40)
+              + pad(POS.get(rec["pos"], rec["pos"]), 40)
               + f"{pmw_l:>8} {pmw_s:>9}")
     print()
-
-    n_kanji = sum(1 for ch in word if is_kanji(ch))
-    has_kana = any("ぁ" <= ch <= "ゖ" or "ァ" <= ch <= "ヺ" for ch in word)
-
-    if n_kanji > 2:
-        print(f"  ЗНАКОВ: {n_kanji}. Метод проверен только на двузнаковых;")
-        print("  разбор трёх- и четырёхзнаковых деревом не пройден ни разу.\n")
 
     if len(seen) > 1:
         print("СТОП: под этой записью больше одного слова.")
         print("  Разбор приписывается паре (форма, значение), а не форме.")
         print("  Спросить, какое из них разбирается: ветки у них разные.\n")
-        for (reading, wtype), src in seen.items():
-            head = branch(wtype, "suw" in src, "luw2" in src,
+        for (reading, wtype), rec in seen.items():
+            head = branch(wtype, rec["suw"] is not None, rec["luw2"] is not None,
                           n_kanji, has_kana)[0]
             head = head.replace("ВЕТКА: ", "").replace("ПРИЗНАК: ", "")
             print(f"  {pad(reading, wr)}→ {head}")
@@ -187,10 +202,10 @@ def report(word: str) -> int:
         print("  дальше нужен ответ Бориса.")
         return 0
 
-    (reading, wtype), src = next(iter(seen.items()))
+    (reading, wtype), rec = next(iter(seen.items()))
     name, gloss = WTYPE.get(wtype, (wtype, "разряд не опознан"))
     print(f"  語種 = {name} ({gloss})\n")
-    for line in branch(wtype, "suw" in src, "luw2" in src,
+    for line in branch(wtype, rec["suw"] is not None, rec["luw2"] is not None,
                        n_kanji, has_kana):
         print(line)
     return 0
