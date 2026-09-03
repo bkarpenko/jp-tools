@@ -142,8 +142,8 @@ def branch(wtype: str, in_suw: bool, in_luw2: bool,
     out.append("  1. 日本国語大辞典 — с датированными примерами;")
     out.append("  2. hanyucidian.org — статья компаунда.")
     out.append("  Статьи ЗНАКОВ — такт 2, после того как ветка выбрана:")
-    out.append("  hanyucidian по обоим знакам в любом случае, а для ветки Б")
-    out.append("  ещё и японские сложения с теми же знаками, с датировками.")
+    out.append("  hanyucidian по обоим знакам. Японские параллели ветки Б")
+    out.append("  не запрашиваются: они на kotobank, их собирает разбор (шаг Б4).")
     return out
 
 
