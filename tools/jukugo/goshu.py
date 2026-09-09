@@ -130,7 +130,7 @@ def branch(wtype: str, in_suw: bool, in_luw2: bool,
         out.append("  и морфемы, а не связь знаков между собой.")
         out.append("  Ветка — плейсхолдер: см. PIPELINE.md, «Ветка В». Сказать это")
         out.append("  Борису и остановиться. Готовый разбор того же вида —")
-        out.append("  tools/jukugo/docs/отложено/разборы/気配.md")
+        out.append("  tools/jukugo/docs/deferred/analyses/気配.md")
         return out
 
     out.append("ВЕТКА A или Б — по таблице не различаются.")
