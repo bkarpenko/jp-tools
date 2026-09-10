@@ -17,12 +17,17 @@
 японских цитат мои**: словарных переводов у этих фраз нет. Цитаты намеренно
 короткие, адреса точные — текст проверяется по ссылке.
 
-**PDF в `sources/` не положены.** Статья 野村 1976 на J-STAGE несёт пометку
-«© 1976, Japan Science and Technology Agency», открытой лицензии на странице нет;
-у остальных найденных PDF лицензия тоже не указана. Выкладывать их копии
-в публичный репозиторий я не стал — это распространение чужого охраняемого текста,
-и решение от 10.09.2026 этого не снимает. Все файлы лежат в открытом доступе
-по адресам ниже; если владелец всё же захочет положить копии, это его действие.
+**PDF в `../sources/`.** Залиты владельцем репозитория 10.09.2026. Лицензия:
+статья 1976 года — «© 1976, Japan Science and Technology Agency» (страница
+J-STAGE), у остальных открытой лицензии не указано.
+
+| файл | что это | откуда взят |
+|---|---|---|
+| `nomura-1976-gendai-kango-gokosei.pdf` | 野村 1976, задача 1 | https://www.jstage.jst.go.jp/article/johokanri/18/11/18_884/_pdf |
+| `nomura-yamashita-1993-kanji-kango-db.pdf` | 野村・山下 1993, задача 2 | https://waseda.repo.nii.ac.jp/record/26449/files/30172_a.pdf |
+| `nomura-1999-kihon-kango.pdf` | 野村 1999, задача 2 | https://waseda.repo.nii.ac.jp/record/26040/files/KJ00000178752.pdf |
+| `akutsu-2019-kanbun-kakariuke.pdf` | 阿久津 2019, задача 4 | https://takushoku-u.repo.nii.ac.jp/records/288 (файл «漢文の係り受け構造の図解.pdf») |
+| `packard-2000-frontmatter-ch1.pdf` | Packard 2000, титул, оглавление, гл. 1 — задача 5 | https://pinyin.info/readings/texts/chinese_morphology.pdf |
 
 ---
 
