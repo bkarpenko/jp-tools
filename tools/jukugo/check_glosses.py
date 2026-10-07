@@ -235,8 +235,13 @@ def main(path):
             simplified = opencc.OpenCC("t2s").convert(compound)
         except Exception:
             simplified = ""
-    forms = {f for f in (compound, simplified) if f}
-    chars = list(dict.fromkeys(compound))
+    # Окуригана знаком не считается: у 和語 (ветка В) заголовок разбора 小遣い,
+    # а знаки — 小 и 遣; запись без каны (小遣) — тоже форма слова, так её пишет 日国.
+    def is_kanji(ch):
+        return "\u3400" <= ch <= "\u9fff" or "\uf900" <= ch <= "\ufaff"
+    stem = "".join(ch for ch in compound if is_kanji(ch))
+    forms = {f for f in (compound, simplified, stem) if f}
+    chars = list(dict.fromkeys(stem))
 
     def char_row(u, ch):
         """Ряд глоссы знака ch: знак назван в помете, а компаунд — нет."""
