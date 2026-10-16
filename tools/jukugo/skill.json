@@ -5,6 +5,7 @@
   "files": [
     "goshu.py",
     "check_glosses.py",
+    "ru_pass.py",
     "references/",
     "examples/"
   ],
