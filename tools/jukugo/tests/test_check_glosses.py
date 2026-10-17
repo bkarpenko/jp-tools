@@ -5,8 +5,9 @@
 Синтетический разбор нарочно нарушает все три правила: «окончательно» в теле,
 голое *it* в связном прочтении, ветка A без разделов «Матрица прочтений»
 и «Тексты употребления». Контрольный разбор — тот же, но исправленный: в нём
-W7–W9 молчат. Образцы examples/ должны давать ноль ошибок (W9 на них ожидаем:
-они написаны до шагов М1–М2).
+W7–W9 молчат. Отдельно проверено, что W9 берёт ветку из заголовка «Где сложено»,
+а W7 не трогает «точно так же», но ловит «не окончательно». Образцы examples/
+должны давать ноль ошибок (W9 на 上達.md ожидаем: его §2 написан до шагов М1–М2).
 
 ЗАПУСК:
     python3 -m unittest discover tools/jukugo/tests
@@ -62,6 +63,15 @@ GOOD = """# 甲乙
 """
 
 
+# Ветка В, где ветка A упомянута лишь для сравнения, и «точно так же» — сравнение:
+# ни W9, ни W7 здесь срабатывать не должны.
+BRANCH_V = GOOD.replace(
+    "Ветка A. Конкурент ослаблен: довод назван в §2.",
+    "## Где сложено [ВЫВОД] — в Японии, ветка В\n\n"
+    "В отличие от ветки A, сложения в Китае не было; точно так же и запись японская.",
+).replace("### Матрица прочтений\n\n### Тексты употребления\n\n", "")
+
+
 def run(text):
     """Прогнать сверщик по тексту разбора; вернуть (код возврата, вывод)."""
     with tempfile.NamedTemporaryFile("w", suffix=".md", encoding="utf-8",
@@ -92,6 +102,15 @@ class NewWarnings(unittest.TestCase):
         _, out = run(GOOD)
         for w in ("[W7]", "[W8]", "[W9]"):
             self.assertNotIn(w, out, out)
+
+    def test_branch_from_heading_and_comparison_not_flagged(self):
+        _, out = run(BRANCH_V)
+        self.assertNotIn("[W9]", out, out)
+        self.assertNotIn("[W7]", out, out)
+
+    def test_negated_certainty_is_flagged(self):
+        _, out = run(GOOD.replace("Конкурент ослаблен", "Конкурент отсечён не окончательно"))
+        self.assertIn("[W7]", out, out)
 
     def test_examples_have_no_errors(self):
         ex = os.path.join(TOOL, "examples")
