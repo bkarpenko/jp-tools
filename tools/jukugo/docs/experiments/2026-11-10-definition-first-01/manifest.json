@@ -1,0 +1,84 @@
+{
+  "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+  "pipeline_blob": "fa0f35da06a7cc27441d496fe2496217630dbeda",
+  "purpose": "Independent prospective trial; no case results or expected classifications included.",
+  "sanitization": "Withhold entire Markdown heading sections containing a target token or encoded equivalent; no previous analyses read.",
+  "limitations": "Derived references are intentionally incomplete. protocol.md/access.md supply the prospective route. Not a formally blinded model study.",
+  "references": [
+    {
+      "source_path": "tools/jukugo/PIPELINE.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "fa0f35da06a7cc27441d496fe2496217630dbeda",
+      "source_sha256": "2ef801f6ffeef9fd8fb78346b5af27ee1796b639c47869ac140881e7525fd5de",
+      "derived_path": "neutral/PIPELINE.md",
+      "derived_sha256": "276387aafd9b5c0c0256a0729636a291cc33afcb70449970c2b4dc81b12f3e8b",
+      "withheld_section_indices": [
+        14,
+        17,
+        25,
+        58
+      ]
+    },
+    {
+      "source_path": "tools/jukugo/references/web-sources.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "4df6b2efd663af5185496b140f91961c9848cbf0",
+      "source_sha256": "e67191e4da5b52b68a9918222fee53a8e5f4abb571a58218cc3a63215f5a6ddb",
+      "derived_path": "neutral/web-sources.md",
+      "derived_sha256": "a73d9f96efbe853896fde3e3ab0505f069e3828941e832084961c83f88d45c65",
+      "withheld_section_indices": [
+        38,
+        40
+      ]
+    },
+    {
+      "source_path": "tools/jukugo/references/SCHEMA.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "031bcbb0db4c46c1c240d0ba5fc1a32b7cd753b0",
+      "source_sha256": "370d466b930a9cfaa51bed1bb44126f7d12590f980ea10416f5fbfece0f3cf3f",
+      "derived_path": "neutral/SCHEMA.md",
+      "derived_sha256": "79c95dd84d194e362035883d0617632bc34ad9f1c76bdfdcb25a32efbe1c3e6e",
+      "withheld_section_indices": []
+    },
+    {
+      "source_path": "tools/jukugo/references/russian.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "83eba7dacc35750fc895fb29afcaefcd401047f6",
+      "source_sha256": "3641b4ab6d71099ac5ab603851b6177da84973a988ee4969af3cfcbd02a35b1a",
+      "derived_path": "neutral/russian.md",
+      "derived_sha256": "e19958e9baff17dcaef01b36d0ff3896d0f32afe08d8a83ed0ab2a8876af2b01",
+      "withheld_section_indices": []
+    },
+    {
+      "source_path": "CLAUDE.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "65178668b2f8437577c96d012b8ec809880728b9",
+      "source_sha256": "5c6145a98adb62485370c5cc6934f5a8f606ebb6bbc0fda8101756464c61c013",
+      "derived_path": "neutral/CLAUDE.md",
+      "derived_sha256": "1c44c0177f48e054d6126d2b0e8522fd6be5841e7f37a3b5cdf684be9d03d97c",
+      "withheld_section_indices": [
+        13
+      ]
+    },
+    {
+      "source_path": "tools/jukugo/README.md",
+      "base_commit": "1ad3d417ee3e3d0f7f2ee3769d0c258ae13488a7",
+      "git_blob": "265d923be982e38f1501ef5ca14d75776f0cb957",
+      "source_sha256": "14ba1072740fcd5306776f563e24009735eb94e56d182c21d1a2947d74433aa1",
+      "derived_path": "neutral/jukugo-README.md",
+      "derived_sha256": "705d97412f4b6fef932f6967f4751ad77b24b90af4c70d5e24c72abb82e77076",
+      "withheld_section_indices": [
+        4
+      ]
+    }
+  ],
+  "handoff_sha256": {
+    "handoff.md": "943b5ac7e7bc69bbccdb7399751638bbb9dfafa6a74a2f2486a1ea322fda5d67",
+    "protocol.md": "7e22e75c7ddf4b84d78e68da6621a22581de8143b63abc7ccc74d70f8fa08ac9",
+    "access.md": "10fb37ca12fe027e5cfad723afdfb0f51c465550f17293680d91f82c7ea764b0",
+    "state.md": "8f12f34231020b8e98c1348eb4ba51b3c9713f1c86398da25b603546bc6579a5",
+    "start-here.md": "cce0d468b048820631186c939ed89774b0821f92af3b3fd8ccbd6b50ac73bf1c",
+    "make_neutral.py": "64769c68a7d332e224f288df466eb76407e5afbc5dd27e934ffa38cd029d3b05",
+    "protocol-v2-coverage.md": "513eecd8d9a51cfe6c1cb94925b18443879e1310e5607dd8b9a0e3e7cab58130"
+  }
+}
