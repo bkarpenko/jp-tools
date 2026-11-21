@@ -1,6 +1,15 @@
 # Журнал источников 特徴（とくちょう）
 
-На момент подготовки обращений к источникам и присланных материалов нет.
-
 | ID | Дата и время с поясом | Источник и издание | Статья, чтение, номер значения | Запрос и охват | Фактически открытый URL | Результат и контроль при нуле | Сохранённый материал |
 |---|---|---|---|---|---|---|---|
+| HC01 | 2026-11-21T02:13:43+03:00 Europe/Moscow | 漢語大詞典（第一版+訂補）, 第12册 | 特徵, tè zhēng, 1–3 | Статья по традиционному заголовку | https://www.hanyucidian.org/dictionary/entry?dictionaryCode=hydcdcx&entryName=%E7%89%B9%E5%BE%B5 | Три значения. Старший пример под 1 из 《后汉书》. | §6 |
+| JK01 | 2026-11-21T02:14:01+03:00 Europe/Moscow | 日本国語大辞典 第二版 | とく‐ちょう【特徴】, (1)–(2) | 個別検索, 見出し, 完全一致, 特徴 | https://japanknowledge.com/psnl/display/?lid=2002030482d025UtdZi6 | Один результат. (1) с 1884 по 日国. Японский пример (2) около 1800. | §6 |
+| CT01 | 2026-11-21T02:16:16+03:00 Europe/Moscow | 中國哲學書電子化計劃 | 特徵 | 先秦兩漢, подстрока 特徵 | https://ctext.org/pre-qin-and-han?searchu=%E7%89%B9%E5%BE%B5 | HTTP 200, страница «Checking the security of your connection...» с прямым запретом автоматизированного доступа. Выдача недоступна. | — |
+| CT02 | 2026-11-21T02:16:16+03:00 Europe/Moscow | 中國哲學書電子化計劃 | 特徵 | 漢代之後, подстрока 特徵 | https://ctext.org/post-han?searchu=%E7%89%B9%E5%BE%B5 | Та же страница проверки, без выдачи. | — |
+| HC02 | 2026-11-21T02:16:21+03:00 Europe/Moscow | 漢語大詞典（第一版+訂補）, 第12册 | 特, tè, 1–15 | Статья знака целиком | https://www.hanyucidian.org/dictionary/entry?dictionaryCode=hydcdcx&entryName=%E7%89%B9 | Сопоставлены 10 и 11. В примере 《史記》 есть 特召. | §6 |
+| HC03 | 2026-11-21T02:16:22+03:00 Europe/Moscow | 漢語大詞典（第一版+訂補）, 第7册 | 徵, zhēng, chéng, zhǐ | Статья знака целиком | https://www.hanyucidian.org/dictionary/entry?dictionaryCode=hydcdcx&entryName=%E5%BE%B5 | Сопоставлены значения 1 и 6 у zhēng. | §6 |
+| HC04 | 2026-11-21T02:18+03:00 Europe/Moscow | 漢語辭典總匯 | 特召 | Прямой адрес с dictionaryCode=hydcdcx | https://www.hanyucidian.org/dictionary/default | Переход на страницу по умолчанию. Самостоятельная статья этим заходом не подтверждена. | — |
+| HC05 | 2026-11-21T02:18:03+03:00 Europe/Moscow | 漢語大詞典（第一版+訂補）, 第7册 | 徵召, zhēng zhào | Статья по традиционному заголовку | https://www.hanyucidian.org/dictionary/entry?dictionaryCode=hydcdcx&entryName=%E5%BE%B5%E5%8F%AC | Есть толкование 征求召集 и цитата из 《漢書》. | Локатор статьи |
+| JK02 | 2026-11-21T02:23:25+03:00 Europe/Moscow | 日本国語大辞典 第二版 | ちょう【徴】, (1)–(4) | 個別検索, 見出し, 完全一致, 徴, результат 5 из 6 | https://japanknowledge.com/psnl/display/?lid=200202c08810yWO52GW3 | Словарь даёт раздельные значения вызова (1) и признака (3). | Локатор статьи |
+| JK03 | 2026-11-21T02:23:29+03:00 Europe/Moscow | 日本国語大辞典 第二版 | ちょう〔字音語素〕, 徴 (2) | Тот же поиск 徴, результат 4 из 6 | https://japanknowledge.com/psnl/display/?lid=200202c07530fHHB5pKK | Морфема, значение (2), с примером 特徴. | §6 |
+| JK04 | 2026-11-21T02:23:49+03:00 Europe/Moscow | 日本国語大辞典 第二版 | とく〔字音語素〕, 特 (3) | 個別検索, 見出し, 完全一致, 特 | https://japanknowledge.com/psnl/display/?lid=20020302c0c3ppJje8ib | Один результат. Морфема, значение (3), с примером 特徴. | §6 |
