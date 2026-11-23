@@ -89,8 +89,8 @@ KANJI_MARK = re.compile(r"\s*\[[㐀-鿿぀-ヿ]\]")
 EN_IN_TEXT = re.compile(r'\*"([^"\n]+)"\*')
 RU_IN_TEXT = re.compile(r"«([^»\n]+)»")
 PAIR_INLINE = re.compile(r'\*"([^"\n]+)"\*\s*/\s*«([^»\n]+)»')
-# Звено блока «Связь значений»: **1. Китайское, исходное:** …
-CHAIN_LINK = re.compile(r"^\*\*\d+\.[^*]*:\*\*")
+# Звенья «Связи значений» в текущем и прежнем формате.
+CHAIN_LINK = re.compile(r"^\*\*\d+\.\s*(?:\((?:Китай|Япония)\)|[^*]*:)\*\*")
 
 
 def norm(s: str) -> str:

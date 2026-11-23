@@ -112,6 +112,15 @@ class NewWarnings(unittest.TestCase):
         _, out = run(GOOD.replace("Конкурент ослаблен", "Конкурент отсечён не окончательно"))
         self.assertIn("[W7]", out, out)
 
+    def test_chain_link_rejects_analysis_gloss_in_both_formats(self):
+        for label in ("**1. (Китай)**", "**1. (Япония)**", "**1. Китайское:**"):
+            with self.subTest(label=label):
+                link = label + ' *"to require something of someone"* / «требовать чего-л. от кого-л.»'
+                text = GOOD.replace("# §6.", "## Связь значений\n\n" + link + "\n\n# §6.")
+                _, out = run(text)
+                self.assertIn("[E4]", out, out)
+                self.assertIn("звене «Связи значений»", out, out)
+
     def test_examples_have_no_errors(self):
         ex = os.path.join(TOOL, "examples")
         for name in ("上達.md", "小遣い.md"):
