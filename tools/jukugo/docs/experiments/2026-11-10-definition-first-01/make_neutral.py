@@ -75,7 +75,12 @@ def main() -> None:
             "derived_sha256": sha256(result),
             "withheld_section_indices": removed,
         })
-    main_files = ["handoff.md", "protocol.md", "protocol-v2-coverage.md", "access.md", "state.md", "start-here.md", "make_neutral.py"]
+    main_files = [
+        "handoff.md", "protocol.md", "protocol-v2-coverage.md",
+        "protocol-v3-entry-search.md", "access.md", "state.md",
+        "start-here.md", "make_neutral.py", "../../../references/ja-on-morphemes.md",
+        "../../../references/express-method.md",
+    ]
     manifest = {
         "base_commit": BASE,
         "pipeline_blob": "fa0f35da06a7cc27441d496fe2496217630dbeda",

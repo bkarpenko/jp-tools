@@ -73,12 +73,15 @@
     }
   ],
   "handoff_sha256": {
-    "handoff.md": "943b5ac7e7bc69bbccdb7399751638bbb9dfafa6a74a2f2486a1ea322fda5d67",
+    "handoff.md": "7dfd245d09961019effc7da66b8cf7f3de9c774b1480bd1f7ad00739f0a2017a",
     "protocol.md": "7e22e75c7ddf4b84d78e68da6621a22581de8143b63abc7ccc74d70f8fa08ac9",
+    "protocol-v2-coverage.md": "513eecd8d9a51cfe6c1cb94925b18443879e1310e5607dd8b9a0e3e7cab58130",
+    "protocol-v3-entry-search.md": "c8d77628007d498aa28c9dc13f0934f6778f1e909d664564c82f713927fb53de",
     "access.md": "10fb37ca12fe027e5cfad723afdfb0f51c465550f17293680d91f82c7ea764b0",
-    "state.md": "8f12f34231020b8e98c1348eb4ba51b3c9713f1c86398da25b603546bc6579a5",
-    "start-here.md": "cce0d468b048820631186c939ed89774b0821f92af3b3fd8ccbd6b50ac73bf1c",
-    "make_neutral.py": "64769c68a7d332e224f288df466eb76407e5afbc5dd27e934ffa38cd029d3b05",
-    "protocol-v2-coverage.md": "513eecd8d9a51cfe6c1cb94925b18443879e1310e5607dd8b9a0e3e7cab58130"
+    "state.md": "785d6cf171f47ad280f26ce068a65ab423e0090ad25d56f217a6558742bc6ebe",
+    "start-here.md": "1f1ed8babe30d79cbe315d5c10000b8f69c537987b9e33d3f1f768ff6cc192a9",
+    "make_neutral.py": "b5033ce95b2c8fd0dd6214eaea1ff77d12419ebe381db485ddf0cb9bd436b930",
+    "../../../references/ja-on-morphemes.md": "258f2d2bce76223636348384e5257146910c3285176bedbc4bb1ca17c607b4a3",
+    "../../../references/express-method.md": "bbf1755ee2ba55f8a63042cb721015f4c3e17654e664e7522d540f25f068b5d2"
   }
 }
