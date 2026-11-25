@@ -73,7 +73,7 @@
     }
   ],
   "handoff_sha256": {
-    "handoff.md": "7dfd245d09961019effc7da66b8cf7f3de9c774b1480bd1f7ad00739f0a2017a",
+    "handoff.md": "395283e0d66b15687e56512308b1b9d739658880052d8ae05f1420c226544436",
     "protocol.md": "7e22e75c7ddf4b84d78e68da6621a22581de8143b63abc7ccc74d70f8fa08ac9",
     "protocol-v2-coverage.md": "513eecd8d9a51cfe6c1cb94925b18443879e1310e5607dd8b9a0e3e7cab58130",
     "protocol-v3-entry-search.md": "c8d77628007d498aa28c9dc13f0934f6778f1e909d664564c82f713927fb53de",
@@ -81,7 +81,7 @@
     "state.md": "785d6cf171f47ad280f26ce068a65ab423e0090ad25d56f217a6558742bc6ebe",
     "start-here.md": "1f1ed8babe30d79cbe315d5c10000b8f69c537987b9e33d3f1f768ff6cc192a9",
     "make_neutral.py": "b5033ce95b2c8fd0dd6214eaea1ff77d12419ebe381db485ddf0cb9bd436b930",
-    "../../../references/ja-on-morphemes.md": "8991fe911cd4c9f2169360ce50abb5eb0a42f84cea2f3b78013b7330bcff1bd4",
-    "../../../references/express-method.md": "5f0793c84020bea98393afba3cb7efbd7fb7df26da3ca2a20e2cd63a5d93bdcd"
+    "../../../references/ja-on-morphemes.md": "f7361b27c85ce340055a0731985005c8da62dc1ddb70f4d2acfdd5520735ae6f",
+    "../../../references/express-method.md": "5f45a471f4d30c3a4da076578480b0ade4b61b40d628ce2dc34eb71bf86f6e91"
   }
 }
